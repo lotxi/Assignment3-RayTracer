@@ -1,4 +1,7 @@
 #include "InputReader.h"
+#include "Sphere.h"
+#include "Triangle.h"
+#include "Plane.h"
 
 
 enum object_type
@@ -7,7 +10,8 @@ enum object_type
 	light,
 	sphere,
 	triangle,
-	plane
+	plane,
+	errortype
 };
 object_type hashit(std::string const& input)
 {
@@ -16,11 +20,12 @@ object_type hashit(std::string const& input)
 	if (input == "sphere") return sphere;
 	if (input == "triangle") return triangle;
 	if (input == "plane") return plane;
+	return errortype;
 }
 
 void InputReader::ReadCamera()
 {
-	Vec3 position;
+	glm::vec3 position;
 	float fov, aspect_ratio, focal_length;
 	std::string line;
 	getline(input, line);
@@ -41,7 +46,7 @@ void InputReader::ReadCamera()
 
 void InputReader::ReadPlane()
 {
-	Vec3 normal, position, ambient, diffuse, specular;
+	glm::vec3 normal, position, ambient, diffuse, specular;
 	float shininess;
 
 	std::string line;
@@ -71,7 +76,7 @@ void InputReader::ReadPlane()
 
 void InputReader::ReadTriangle()
 {
-	Vec3 v1, v2, v3, ambient, diffuse, specular;
+	glm::vec3 v1, v2, v3, ambient, diffuse, specular;
 	float shininess;
 
 	std::string line;
@@ -104,7 +109,7 @@ void InputReader::ReadTriangle()
 
 void InputReader::ReadSphere()
 {
-	Vec3 position, ambient, diffuse, specular;
+	glm::vec3 position, ambient, diffuse, specular;
 	float radius, shininess;
 	
 	std::string line;
@@ -134,7 +139,7 @@ void InputReader::ReadSphere()
 
 void InputReader::ReadLight()
 {
-	Vec3 position, color;
+	glm::vec3 position, color;
 	
 	std::string line;
 	
@@ -151,7 +156,7 @@ void InputReader::ReadLight()
 }
 
 
-Vec3 InputReader::parseVector(std::string line)
+glm::vec3 InputReader::parseVector(std::string line)
 {
 	std::stringstream ss(line);
 	std::istream_iterator<std::string> begin(ss);
@@ -163,7 +168,7 @@ Vec3 InputReader::parseVector(std::string line)
 	y = stof(vstrings[2]);
 	z = stof(vstrings[3]);
 
-	return Vec3(x, y, z);
+	return glm::vec3(x, y, z);
 	
 }
 
@@ -218,6 +223,11 @@ InputReader::InputReader(std::string file)
 			default:
 				break;
 			}
+		}
+
+		if (scene.camera!=nullptr)
+		{
+			scene.build_scene();
 		}
 	}
 }

@@ -12,7 +12,7 @@ class InputReader
 {
 public:
 	void ReadCamera();
-	static Vec3 parseVector(std::string line);
+	static glm::vec3 parseVector(std::string line);
 	static float parseFloat(std::string line);
 	void ReadPlane();
 	void ReadTriangle();

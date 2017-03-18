@@ -1,172 +1,35 @@
 #include "Scene.h"
 #include <string>
-
-Vec3::Vec3():
-x(0),y(0),z(0)
-{
-}
-
-Vec3::Vec3(float x, float y, float z):
-x(x),y(y),z(z)
-{
-}
-
-SceneObject::~SceneObject()
-{
-}
-
-SceneObject::SceneObject() : ambient(Vec3()), diffuse(Vec3()), specular(Vec3()), shininess(0)
-{
-}
-
-SceneObject::SceneObject(Vec3 ambient, Vec3 diffuse, Vec3 specular, float shininess) :
-	ambient(ambient), diffuse(diffuse), specular(specular), shininess(shininess)
-{
-
-}
-
-
-Camera::Camera() : pos(Vec3()), fov(45.0), focal_length(1000), aspect_ratio(1)
-{
-
-}
-
-Camera::Camera(Vec3 pos, float fov, float focal_length, float aspect_ratio) :
-	pos(pos), fov(fov), focal_length(focal_length), aspect_ratio(aspect_ratio)
-{
-
-}
-
-std::string Camera::to_string()
-{
-	std::string result;
-	result += "Camera\n";
-	result += "position: X" + std::to_string(pos.x) + " Y" + std::to_string(pos.y) + " Z" + std::to_string(pos.z) + "\n";
-	result += "fov: " + std::to_string(fov) + "\n";
-	result += "focal length: " + std::to_string(focal_length) + "\n";
-	result += "aspect ratio: " + std::to_string(aspect_ratio) + "\n";
-	return result;
-}
-
-Camera::~Camera()
-{
-}
-
-Plane::Plane() :
-	SceneObject(), position(Vec3()), normal(Vec3())
-{
-}
-
-Plane::Plane(Vec3 normal, Vec3 position, Vec3 ambient, Vec3 diffuse, Vec3 specular, float shininess) :
-	SceneObject(ambient, diffuse, specular, shininess), normal(normal), position(position)
-{
-}
-
-std::string Plane::to_string()
-{
-	std::string result;
-	result += "Plane\n";
-	result += "normal: X" + std::to_string(normal.x) + " Y" + std::to_string(normal.y) + " Z" + std::to_string(normal.z) + "\n";
-	result += "position: X" + std::to_string(position.x) + " Y" + std::to_string(position.y) + " Z" + std::to_string(position.z) + "\n";
-	result += "ambient: R" + std::to_string(ambient.x) + " G" + std::to_string(ambient.y) + " B" + std::to_string(ambient.z) + "\n";
-	result += "diffuse: R" + std::to_string(diffuse.x) + " G" + std::to_string(diffuse.y) + " B" + std::to_string(diffuse.z) + "\n";
-	result += "specular: R" + std::to_string(specular.x) + " G" + std::to_string(specular.y) + " B" + std::to_string(specular.z) + "\n";
-	result += "shininess: " + std::to_string(shininess) + "\n";
-	return result;
-}
-
-Plane::~Plane()
-{
-}
-
-Sphere::Sphere() :
-	SceneObject(), pos(Vec3()), radius(0)
-{
-
-}
-
-Sphere::Sphere(Vec3 position, Vec3 ambient, Vec3 diffuse, Vec3 specular, float radius, float shininess) :
-	SceneObject(ambient, diffuse, specular, shininess), pos(position), radius(radius)
-{
-}
-
-std::string Sphere::to_string()
-{
-	std::string result;
-	result += "Sphere\n";
-	result += "position: X" + std::to_string(pos.x) + " Y" + std::to_string(pos.y) + " Z" + std::to_string(pos.z) + "\n";
-	result += "rad: " + std::to_string(radius) + "\n";
-	result += "ambient: R" + std::to_string(ambient.x) + " G" + std::to_string(ambient.y) + " B" + std::to_string(ambient.z) + "\n";
-	result += "diffuse: R" + std::to_string(diffuse.x) + " G" + std::to_string(diffuse.y) + " B" + std::to_string(diffuse.z) + "\n";
-	result += "specular: R" + std::to_string(specular.x) + " G" + std::to_string(specular.y) + " B" + std::to_string(specular.z) + "\n";
-	result += "shininess: " + std::to_string(shininess) + "\n";
-	return result;
-
-}
-
-Sphere::~Sphere()
-{
-}
-
-Triangle::Triangle() :
-	SceneObject(), v1(Vec3()), v2(Vec3()), v3(Vec3())
-{
-
-}
-
-Triangle::Triangle(Vec3 v1, Vec3 v2, Vec3 v3, Vec3 ambient, Vec3 diffuse, Vec3 specular, float shininess) :
-	SceneObject(ambient, diffuse, specular, shininess), v1(v1), v2(v2), v3(v3)
-{
-
-}
-
-std::string Triangle::to_string()
-{
-	std::string result;
-	result += "Triangle\n";
-	result += "v1: X" + std::to_string(v1.x) + " Y" + std::to_string(v1.y) + " Z" + std::to_string(v1.z) + "\n";
-	result += "v2: X" + std::to_string(v2.x) + " Y" + std::to_string(v2.y) + " Z" + std::to_string(v2.z) + "\n";
-	result += "v3: X" + std::to_string(v3.x) + " Y" + std::to_string(v3.y) + " Z" + std::to_string(v3.z) + "\n";
-	result += "ambient: R" + std::to_string(ambient.x) + " G" + std::to_string(ambient.y) + " B" + std::to_string(ambient.z) + "\n";
-	result += "diffuse: R" + std::to_string(diffuse.x) + " G" + std::to_string(diffuse.y) + " B" + std::to_string(diffuse.z) + "\n";
-	result += "specular: R" + std::to_string(specular.x) + " G" + std::to_string(specular.y) + " B" + std::to_string(specular.z) + "\n";
-	result += "shininess: " + std::to_string(shininess) + "\n";
-	return result;
-
-}
-
-Triangle::~Triangle()
-{
-}
-
-Light::Light() :
-	position(Vec3()), color(Vec3())
-{
-
-}
-
-Light::Light(Vec3 position, Vec3 color) :
-	position(position), color(color)
-{
-}
-
-std::string Light::to_string()
-{
-	std::string result;
-	result += "Light\n";
-	result += "position: X" + std::to_string(position.x) + " Y" + std::to_string(position.y) + " Z" + std::to_string(position.z) + "\n";
-	result += "color: R" + std::to_string(color.x) + " G" + std::to_string(color.y) + " B" + std::to_string(color.z) + "\n";
-	return result;
-}
-
-Light::~Light()
-{
-}
+#include <iostream>
+#include <glm/detail/type_mat.hpp>
 
 Scene::Scene()
 {
 	camera = nullptr;
 	ground = nullptr;
+}
+
+bool Scene::build_scene()
+{
+	// Calculate height
+	height = glm::round(tan(glm::radians(camera->getFoV() / 2)) * 2 * camera->getFocalLength());
+	//Calculate width
+	width = glm::round(camera->getAspectRatio()*height);
+
+	int world_z = camera->getPosition().z + camera->getAspectRatio();
+	//result = (src - src_min) / (src_max - src_min) * (result_max - result_min) + result_min
+
+	std::cout << width << "   " << height; 
+	// For each pixel, convert the coordinate from screen space to world space
+	for (int i=0; i<width; i++)
+	{
+		for (int j=0; j<height; j++)
+		{
+			
+			std::cout << i << "  " << j << std::endl;
+		}
+	}
+	return true;
 }
 
 Scene::~Scene()
@@ -195,3 +58,65 @@ std::string Scene::to_string()
 
 	return result;
 }
+
+//void Scene::saveBMP(const char * fileName, int w, int h, int dpi, glm::vec3 *data)
+//{
+//	FILE *f;
+//	int k = w*h;
+//	int s = 4 * k;
+//	int filesize = 54 + s;
+//
+//	double factor = 39.375;
+//	int m = static_cast<int>(factor);
+//
+//	int ppm = dpi*m;
+//	unsigned char bmpfileheader[14] = { 'B','M', 0,0,0,0, 0,0,0,0, 54,0,0,0 };
+//	unsigned char bmpinfoheader[40] = { 40,0,0,0, 0,0,0,0, 0,0,0,0, 1,0,24,0 };
+//
+//	bmpfileheader[2] = (unsigned char)(filesize);
+//	bmpfileheader[3] = (unsigned char)(filesize >> 8);
+//	bmpfileheader[4] = (unsigned char)(filesize >> 16);
+//	bmpfileheader[5] = (unsigned char)(filesize >> 24);
+//
+//	bmpinfoheader[4] = (unsigned char)(w);
+//	bmpinfoheader[5] = (unsigned char)(w >> 8);
+//	bmpinfoheader[6] = (unsigned char)(w >> 16);
+//	bmpinfoheader[7] = (unsigned char)(w >> 24);
+//
+//	bmpinfoheader[8] = (unsigned char)(h);
+//	bmpinfoheader[9] = (unsigned char)(h >> 8);
+//	bmpinfoheader[10] = (unsigned char)(h >> 16);
+//	bmpinfoheader[11] = (unsigned char)(h >> 24);
+//
+//	bmpinfoheader[21] = (unsigned char)(s);
+//	bmpinfoheader[22] = (unsigned char)(s >> 8);
+//	bmpinfoheader[23] = (unsigned char)(s >> 16);
+//	bmpinfoheader[24] = (unsigned char)(s >> 24);
+//
+//	bmpinfoheader[25] = (unsigned char)(ppm);
+//	bmpinfoheader[26] = (unsigned char)(ppm >> 8);
+//	bmpinfoheader[27] = (unsigned char)(ppm >> 16);
+//	bmpinfoheader[28] = (unsigned char)(ppm >> 24);
+//
+//
+//	bmpinfoheader[29] = (unsigned char)(ppm);
+//	bmpinfoheader[30] = (unsigned char)(ppm >> 8);
+//	bmpinfoheader[31] = (unsigned char)(ppm >> 16);
+//	bmpinfoheader[32] = (unsigned char)(ppm >> 24);
+//
+//	f = fopen(fileName, "wb");
+//	fwrite(bmpfileheader, 1, 14, f);
+//	fwrite(bmpinfoheader, 1, 40, f);
+//
+//	for (int i=0; i<k; i++)
+//	{
+//		double red =  data[i].x * 255;
+//		double green = data[i].y * 255;
+//		double blue = data[i].z * 255;
+//		unsigned char color[3] = { (int)floor(blue),(int)floor(green),(int)floor(red) };
+//		fwrite(color, 1, 3, f);
+//	}
+//	fclose(f);
+//}
+
+
