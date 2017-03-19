@@ -1,6 +1,8 @@
 #include "Scene.h"
 #include "InputReader.h"
 #pragma warning(disable:4996)
+#include "Sphere.h"
+#include "Plane.h"
 
 void saveBMP(const char * fileName, int w, int h, int dpi, glm::vec3 *data)
 {
@@ -75,6 +77,10 @@ int main()
 	glm::vec3 Z = glm::vec3(0, 0, 1);
 
 	glm::vec3 look_at = glm::vec3(0, 0, 0);
+
+	Sphere scene_sphere(glm::vec3(0, 10, -30), glm::vec3(0.1, 0.5, 0.5), glm::vec3(0.4, 0.6, 0.2), glm::vec3(0.2, 0.5, 0.5), 3, 1.0);
+	Plane scene_plane(Y, glm::vec3(), glm::vec3(0.2, 0.2, 0.2), glm::vec3(0.8, 0.8, 0.2), glm::vec3(0.5, 0.5, 0.5),1.0);
+
 
 	int index = 0;
 

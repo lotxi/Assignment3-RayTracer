@@ -12,7 +12,7 @@ Camera::Camera(glm::vec3 pos, float fov, float focal_length, float aspect_ratio)
 
 }
 
-std::string Camera::to_string()
+std::string Camera::to_string() const
 {
 	std::string result;
 	result += "Camera\n";
@@ -39,7 +39,7 @@ float Camera::getFocalLength() const
 }
 
 float Camera::getAspectRatio() const
-{
+{ 
 	return aspect_ratio;
 }
 

@@ -10,6 +10,10 @@ public:
 	virtual ~SceneObject();
 	SceneObject();
 	SceneObject(glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular, float shininess);
+	glm::vec3 getAmbient() const { return ambient; }
+	glm::vec3 getDiffuse() const { return diffuse; }
+	glm::vec3 getSpecular() const { return specular; }
+	float getShininess() const { return shininess; }
 
 protected:
 	virtual double Intersect(Ray) = 0;

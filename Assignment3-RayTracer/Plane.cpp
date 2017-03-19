@@ -1,18 +1,27 @@
 #include "Plane.h"
 
 Plane::Plane() :
-	SceneObject(), position(glm::vec3()), normal(glm::vec3())
+	SceneObject(), position(glm::vec3()), normal(glm::vec3(0, 1, 0)), distance(1)
 {
 }
 
 Plane::Plane(glm::vec3 normal, glm::vec3 position, glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular, float shininess) :
 	SceneObject(ambient, diffuse, specular, shininess), normal(normal), position(position)
 {
+	distance = getDistanceFromOrigin();
 }
 
 double Plane::Intersect(Ray ray)
 {
-	return 0;
+	double a = glm::dot(ray.getDirection(), normal);
+	 
+	if (a==0)
+	{
+		return -1;
+	}
+	
+	return glm::dot(position - ray.getOrigin(), normal) / a;
+	
 }
 
 glm::vec3 Plane::getPosition() const
@@ -23,6 +32,12 @@ glm::vec3 Plane::getPosition() const
 glm::vec3 Plane::getNormal() const
 {
 	return normal;
+}
+
+float Plane::getDistanceFromOrigin() const
+{
+	//Calculate the distance between the plane and the origin
+	return abs(-normal.x*position.x -normal.y*position.y - normal.z*position.z) /  sqrt(pow(normal.x, 2) + pow(normal.y, 2) + pow(normal.z, 2));
 }
 
 
@@ -36,6 +51,7 @@ std::string Plane::to_string()
 	result += "diffuse: R" + std::to_string(diffuse.x) + " G" + std::to_string(diffuse.y) + " B" + std::to_string(diffuse.z) + "\n";
 	result += "specular: R" + std::to_string(specular.x) + " G" + std::to_string(specular.y) + " B" + std::to_string(specular.z) + "\n";
 	result += "shininess: " + std::to_string(shininess) + "\n";
+	result += "distance from origin: " + std::to_string(distance) + "\n";
 	return result;
 }
 
