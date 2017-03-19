@@ -6,8 +6,8 @@ class Sphere : public SceneObject
 public:
 	Sphere();
 	Sphere(glm::vec3 position, glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular, float radius, float shininess);
-	std::string to_string();
-	float Intersect(Ray ray) override;
+	std::string to_string() override;
+	virtual float Intersect(Ray ray);
 	~Sphere();
 
 private:

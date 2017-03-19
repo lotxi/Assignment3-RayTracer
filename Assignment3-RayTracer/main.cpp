@@ -2,7 +2,33 @@
 #include "InputReader.h"
 #pragma warning(disable:4996)
 #include "Sphere.h"
+#include <cimg/CImg.h>
 #include "Plane.h"
+
+
+void writeImage(int width, int height, glm::vec3* pixels)
+{
+	cimg_library::CImg<float> image(width, height, 1, 3, 0);
+	for (int x=0; x<width; x++)
+	{
+		for (int y=0; y<height; y++)
+		{
+			int index = y * width + x;
+			float red = pixels[index].x*255;
+			float blue = pixels[index].y * 255;
+			float green = pixels[index].z * 255;
+			image(x, height-y-1, 0, 0) = red;
+			image(x, height-y-1, 0, 1) = blue;
+			image(x, height-y-1, 0, 2) = green;
+		}
+	}
+	image.save("render.bmp");
+	cimg_library::CImgDisplay main_disp(image, "Render");
+	while (!main_disp.is_closed())
+	{
+		main_disp.wait();
+	}
+}
 
 void saveBMP(const char * fileName, int w, int h, int dpi, glm::vec3 *data)
 {
@@ -126,7 +152,7 @@ int main()
 	//Plane scene_plane(Y, glm::vec3(), glm::vec3(0.2, 0.2, 0.2), glm::vec3(0.8, 0.8, 0.2), glm::vec3(0.5, 0.5, 0.5),1.0);
 	//Camera scene_camera()
 
-	InputReader* input = new InputReader("scene_test.txt");
+	InputReader* input = new InputReader("scene7.txt");
 	Scene scene = input->scene;
 	
 	int width = scene.width;
@@ -172,7 +198,13 @@ int main()
 				intersections.push_back(scene.objects[i]->Intersect(cam_ray));
 			}
 			int index_closest = closest(intersections);
+			
+			
+			
 			index = y*width + x;
+
+
+
 			if (index_closest>=0)
 			{
 				pixels[index].x = scene.objects[index_closest]->getAmbient().x;
@@ -202,7 +234,8 @@ int main()
 		
 	}
 	std::cout << "Reached end of raycast loop" << std::endl;
-	saveBMP("scene.bmp", width, height, dpi, pixels);
+	writeImage(width, height, pixels);
+	//saveBMP("scene.bmp", width, height, dpi, pixels);
 
 	/*InputReader* input = new InputReader("scene5.txt");
 	Scene scene = input->scene;*/
