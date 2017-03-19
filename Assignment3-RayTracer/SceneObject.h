@@ -16,7 +16,7 @@ public:
 	float getShininess() const { return shininess; }
 
 protected:
-	virtual double Intersect(Ray) = 0;
+	virtual float Intersect(Ray) = 0;
 	glm::vec3 ambient, diffuse, specular;
 	float shininess;
 };

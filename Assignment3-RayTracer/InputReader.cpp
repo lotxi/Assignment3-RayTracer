@@ -71,7 +71,7 @@ void InputReader::ReadPlane()
 
 	std::cout << "Finished reading plane" << std::endl;
 	// Create plane from inputs
-	scene.ground = new Plane(normal, position, ambient, diffuse, specular, shininess);
+	scene.objects.push_back(new Plane(normal, position, ambient, diffuse, specular, shininess));
 }
 
 void InputReader::ReadTriangle()

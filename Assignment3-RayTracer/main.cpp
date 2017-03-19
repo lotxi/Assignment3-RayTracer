@@ -76,18 +76,53 @@ int main()
 	glm::vec3 Y = glm::vec3(0, 1, 0);
 	glm::vec3 Z = glm::vec3(0, 0, 1);
 
-	glm::vec3 look_at = glm::vec3(0, 0, 0);
+	glm::vec3 cam_dir = glm::vec3(0, 0, -1);
+	glm::vec3 cam_down = glm::vec3(0, -1, 0);
+	glm::vec3 cam_right = glm::vec3(0, 1, 0);
 
-	Sphere scene_sphere(glm::vec3(0, 10, -30), glm::vec3(0.1, 0.5, 0.5), glm::vec3(0.4, 0.6, 0.2), glm::vec3(0.2, 0.5, 0.5), 3, 1.0);
-	Plane scene_plane(Y, glm::vec3(), glm::vec3(0.2, 0.2, 0.2), glm::vec3(0.8, 0.8, 0.2), glm::vec3(0.5, 0.5, 0.5),1.0);
+	//Sphere scene_sphere(glm::vec3(0, 10, -30), glm::vec3(0.1, 0.5, 0.5), glm::vec3(0.4, 0.6, 0.2), glm::vec3(0.2, 0.5, 0.5), 3, 1.0);
+	//Plane scene_plane(Y, glm::vec3(), glm::vec3(0.2, 0.2, 0.2), glm::vec3(0.8, 0.8, 0.2), glm::vec3(0.5, 0.5, 0.5),1.0);
+	//Camera scene_camera()
+
+	InputReader* input = new InputReader("scene5.txt");
+	Scene scene = input->scene;
+	//delete input;
+	float aspect_ratio = scene.camera->getAspectRatio();
+	glm::vec3 Cam_ray_origin = scene.camera->getPosition();
 
 
+	float xamt, yamt;
 	int index = 0;
 
 	for (int x=0 ; x< width; x++)
 	{
 		for (int y=0; y<height; y++)
 		{
+			//No anti-aliasing
+			if (width > height)
+			{
+				xamt = ((x + 0.5) / width)*aspect_ratio- (((width - height) / (float)height) / 2);
+				yamt = ((height - y) + 0.5)/height;
+			}
+			else if (height >width)
+			{
+				xamt = (x + 0.5) / width;
+				yamt = (((height - y) + 0.5) / height) / aspect_ratio - (((height - width) / (float)width) / 2);
+			}
+			else
+			{
+				// The image is square
+				xamt = (x + 0.5) / width;
+				yamt = ((height - y) + 0.5) / height;
+			}
+			glm::vec3 Cam_ray_direction = cam_dir + (cam_right*(float)(xamt - 0.5) + (cam_down*(float)(yamt - 0.5)));
+			Ray cam_ray(Cam_ray_origin, Cam_ray_direction);
+
+			std::vector<float> intersections;
+
+			
+
+			
 			index = y*width + x;
 			if ((x>200 && x< 440) && (y>200 && y<280))
 			{

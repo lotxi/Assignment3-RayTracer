@@ -29,11 +29,43 @@ std::string Sphere::to_string()
 
 }
 
-double Sphere::Intersect(Ray ray)
+float Sphere::Intersect(Ray ray)
 {
-	return 0;
+	float t0, t1;
+	glm::vec3 dir = ray.getDirection();
+	glm::vec3 L = ray.getOrigin()-pos;
+	float a = glm::dot(dir, dir);
+	float b = 2 * glm::dot(dir, L);
+	float c = glm::dot(L,L) - pow(radius,2);
+	if (!solveQuadratic(a, b, c, t0, t1)) return 0;
+	if (!solveQuadratic(a, b, c, t0, t1)) return 0;
+
+	if (t0 > t1) std::swap(t0, t1);
+	if (t0<0)
+	{
+		t0 = t1; // Use t1 if t0 is negative
+		if (t0 < 0) return 0;
+	}
+	return t0;
 }
 
 Sphere::~Sphere()
 {
+}
+
+bool Sphere::solveQuadratic(const float& a, const float& b, const float& c, float& x0, float& x1) const
+{
+	float discr = b * b - 4 * a * c;
+	if (discr < 0) return false;
+	else if (discr == 0) x0 = x1 = -0.5 * b / a;
+	else {
+		float q = (b > 0) ?
+			-0.5 * (b + sqrt(discr)) :
+			-0.5 * (b - sqrt(discr));
+		x0 = q / a;
+		x1 = c / q;
+	}
+	if (x0 > x1) std::swap(x0, x1);
+
+	return true;
 }

@@ -6,7 +6,6 @@
 Scene::Scene()
 {
 	camera = nullptr;
-	ground = nullptr;
 }
 
 bool Scene::build_scene()
@@ -16,8 +15,6 @@ bool Scene::build_scene()
 	//Calculate width
 	width = glm::round(camera->getAspectRatio()*height);
 
-	int world_z = camera->getPosition().z + camera->getAspectRatio();
-	//result = (src - src_min) / (src_max - src_min) * (result_max - result_min) + result_min
 
 	std::cout << width << "   " << height; 
 	// For each pixel, convert the coordinate from screen space to world space
@@ -40,10 +37,6 @@ std::string Scene::to_string()
 {
 	std::string result = "\n";
 	result += camera->to_string() + "\n";
-	if (ground != nullptr)
-	{
-		result += ground->to_string() + "\n";
-	}
 	
 	result += "Lights\n";
 	for (int i=0; i<lights.size(); i++)
