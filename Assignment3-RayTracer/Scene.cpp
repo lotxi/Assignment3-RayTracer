@@ -18,14 +18,7 @@ bool Scene::build_scene()
 
 	std::cout << width << "   " << height; 
 	// For each pixel, convert the coordinate from screen space to world space
-	for (int i=0; i<width; i++)
-	{
-		for (int j=0; j<height; j++)
-		{
-			
-			std::cout << i << "  " << j << std::endl;
-		}
-	}
+
 	return true;
 }
 

@@ -6,6 +6,7 @@
 
 void saveBMP(const char * fileName, int w, int h, int dpi, glm::vec3 *data)
 {
+	std::cout << "Writing to bmp..." << std::endl;
 	FILE *f;
 	int k = w*h;
 	int s = 4 * k;
@@ -62,15 +63,56 @@ void saveBMP(const char * fileName, int w, int h, int dpi, glm::vec3 *data)
 		fwrite(color, 1, 3, f);
 	}
 	fclose(f);
+	std::cout << "Writing complete." << std::endl;
+}
+
+int closest(const std::vector<float>& intersections)
+{
+	int index_min;
+	// Prevent unneeded calculations
+	if (intersections.size()==0) // No intersections were found
+	{
+		return -1;
+	}
+	
+	if (intersections.size()==1) // Only one intersection found
+	{
+		if (intersections[0]>0) // Make sure the distance is greater than 0
+		{
+			return 0;
+		}
+		else 
+		{
+			return -1; // The only intersection distance is negative
+		}
+	}
+	// Determine the closest intersection to camera
+	double max = 0;
+	for (int i=0; i<intersections.size(); i++)
+	{
+		if (intersections[i] > max) max = intersections[i];
+	}
+	// Starting from the maximum value, find the minimum positive value
+	if (max>0)
+	{
+		for (int i=0; i<intersections.size(); i++)
+		{
+			if (intersections[i]>0 && intersections[i]<=max)
+			{
+				max = intersections.at(i);
+				index_min = i;
+			}
+		}
+		return index_min;
+	}
+	return -1;
+
 }
 
 int main()
 {
 	int dpi = 72;
-	int width = 640;
-	int height = 480;
-	int numPixels = width * height;
-	glm::vec3* pixels = new glm::vec3[numPixels];
+
 
 	glm::vec3 X = glm::vec3(1, 0, 0);
 	glm::vec3 Y = glm::vec3(0, 1, 0);
@@ -78,15 +120,20 @@ int main()
 
 	glm::vec3 cam_dir = glm::vec3(0, 0, -1);
 	glm::vec3 cam_down = glm::vec3(0, -1, 0);
-	glm::vec3 cam_right = glm::vec3(0, 1, 0);
+	glm::vec3 cam_right = glm::vec3(1, 0, 0);
 
 	//Sphere scene_sphere(glm::vec3(0, 10, -30), glm::vec3(0.1, 0.5, 0.5), glm::vec3(0.4, 0.6, 0.2), glm::vec3(0.2, 0.5, 0.5), 3, 1.0);
 	//Plane scene_plane(Y, glm::vec3(), glm::vec3(0.2, 0.2, 0.2), glm::vec3(0.8, 0.8, 0.2), glm::vec3(0.5, 0.5, 0.5),1.0);
 	//Camera scene_camera()
 
-	InputReader* input = new InputReader("scene5.txt");
+	InputReader* input = new InputReader("scene_test.txt");
 	Scene scene = input->scene;
-	//delete input;
+	
+	int width = scene.width;
+	int height = scene.height;
+	int numPixels = width * height;
+	glm::vec3* pixels = new glm::vec3[numPixels];
+
 	float aspect_ratio = scene.camera->getAspectRatio();
 	glm::vec3 Cam_ray_origin = scene.camera->getPosition();
 
@@ -96,6 +143,7 @@ int main()
 
 	for (int x=0 ; x< width; x++)
 	{
+		std::cout << "Tracing pixels for x=" << x << "... " << std::endl;
 		for (int y=0; y<height; y++)
 		{
 			//No anti-aliasing
@@ -119,11 +167,25 @@ int main()
 			Ray cam_ray(Cam_ray_origin, Cam_ray_direction);
 
 			std::vector<float> intersections;
-
-			
-
-			
+			for (int i=0; i<scene.objects.size(); i++)
+			{
+				intersections.push_back(scene.objects[i]->Intersect(cam_ray));
+			}
+			int index_closest = closest(intersections);
 			index = y*width + x;
+			if (index_closest>=0)
+			{
+				pixels[index].x = scene.objects[index_closest]->getAmbient().x;
+				pixels[index].y = scene.objects[index_closest]->getAmbient().y;
+				pixels[index].z = scene.objects[index_closest]->getAmbient().z;
+			}
+			else
+			{
+				pixels[index].x = 0;
+				pixels[index].y = 0;
+				pixels[index].z = 0;
+			}
+			/*index = y*width + x;
 			if ((x>200 && x< 440) && (y>200 && y<280))
 			{
 				pixels[index].x = 0.5;
@@ -135,10 +197,11 @@ int main()
 				pixels[index].x = 0.1;
 				pixels[index].y = 0.1;
 				pixels[index].z = 0.2;
-			}
+			}*/
 		}
 		
 	}
+	std::cout << "Reached end of raycast loop" << std::endl;
 	saveBMP("scene.bmp", width, height, dpi, pixels);
 
 	/*InputReader* input = new InputReader("scene5.txt");
