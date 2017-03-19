@@ -3,13 +3,17 @@
 Triangle::Triangle() :
 	SceneObject(), v1(glm::vec3()), v2(glm::vec3()), v3(glm::vec3())
 {
-
+	glm::vec3 e1 = v2 - v1;
+	glm::vec3 e2 = v3 - v1;
+	normal = cross(e1, e2);
 }
 
 Triangle::Triangle(glm::vec3 v1, glm::vec3 v2, glm::vec3 v3, glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular, float shininess) :
 	SceneObject(ambient, diffuse, specular, shininess), v1(v1), v2(v2), v3(v3)
 {
-
+	glm::vec3 e1 = v2 - v1;
+	glm::vec3 e2 = v3 - v1;
+	normal = cross(e1, e2);
 }
 
 std::string Triangle::to_string()
@@ -61,6 +65,11 @@ float Triangle::Intersect(Ray ray)
 
 	return 0;
 
+}
+
+glm::vec3 Triangle::getNormalAt(glm::vec3 point)
+{
+	return normal;
 }
 
 Triangle::~Triangle()

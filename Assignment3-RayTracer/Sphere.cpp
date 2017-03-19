@@ -49,6 +49,13 @@ float Sphere::Intersect(Ray ray)
 	return t0;
 }
 
+glm::vec3 Sphere::getNormalAt(glm::vec3 point)
+{
+	//TODO
+	glm::vec3 normal = normalize(point - pos);
+	return normal;
+}
+
 Sphere::~Sphere()
 {
 }

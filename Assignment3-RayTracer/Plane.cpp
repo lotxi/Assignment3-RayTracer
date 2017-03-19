@@ -28,11 +28,10 @@ glm::vec3 Plane::getPosition() const
 	return position;
 }
 
-glm::vec3 Plane::getNormal() const
+glm::vec3 Plane::getNormalAt(glm::vec3 point)
 {
 	return normal;
 }
-
 
 
 std::string Plane::to_string()

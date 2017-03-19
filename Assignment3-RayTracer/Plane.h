@@ -9,9 +9,9 @@ public:
 	Plane(glm::vec3, glm::vec3, glm::vec3, glm::vec3, glm::vec3, float);
 	~Plane();
 	std::string to_string() override;
-	virtual float Intersect(Ray ray);
+	float Intersect(Ray ray) override;
 	glm::vec3 getPosition() const;
-	glm::vec3 getNormal() const;
+	glm::vec3 getNormalAt(glm::vec3 point) override;
 private:
 	glm::vec3 position, normal;
 

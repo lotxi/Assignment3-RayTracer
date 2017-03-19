@@ -15,6 +15,7 @@ public:
 	glm::vec3 getSpecular() const { return specular; }
 	float getShininess() const { return shininess; }
 	virtual float Intersect(Ray) = 0;
+	virtual glm::vec3 getNormalAt(glm::vec3 point) = 0;
 
 protected:
 	glm::vec3 ambient, diffuse, specular;
