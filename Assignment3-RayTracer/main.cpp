@@ -4,9 +4,11 @@
 #include "Sphere.h"
 #include <cimg/CImg.h>
 #include "Plane.h"
+#define MAX_RAY_DEPTH = 5;
 
-
-float ambient_light = 0.6;
+const float ambient_reflection = 0.2;
+const float diffuse_reflection = 0.2;
+const float specular_reflection = 0.3;
 
 void writeImage(int width, int height, glm::vec3* pixels)
 {
@@ -138,35 +140,58 @@ int closest(const std::vector<float>& intersections)
 
 }
 
+
+//glm::vec3 Trace(Ray& ray, std::vector<SceneObject*> objects, std::vector<Light*> lights,const int&depth)
+//{
+//	SceneObject *object = nullptr;
+//	float minDist = INFINITY;
+//	glm::vec3 pHit;
+//	glm::vec3 nHit;
+//	for (int k=0; k<objects.size(); k++)
+//	{
+//		float distance = objects.at(k)->Intersect(ray);
+//		if (distance > 0 && distance<minDist)
+//		{
+//			object = objects.at(k);
+//			minDist = distance;
+//		}
+//		if (object==nullptr)
+//		{
+//			// No intersection, return background color
+//			return glm::vec3(0, 0, 0);
+//		}
+//		
+//
+//	}
+//}
+
 glm::vec3 getColorAt(const glm::vec3& intersection_position, const glm::vec3& intersection_direction, const std::vector<SceneObject*>& objects, const std::vector<Light*>& lights, int index, double accuracy)
 {
-	// Shadow Ray
+	//Ambient color
+	glm::vec3 color = objects.at(index)->getAmbient()*ambient_reflection;
+	//std::cout << "ambient:" << color.x << " " << color.y << " " << color.z << std::endl;
 
-
-	// Reflection Ray
+	glm::vec3 diffuse = objects.at(index)->getDiffuse();
+	glm::vec3 specular = objects.at(index)->getSpecular();
+	float shininess = objects.at(index)->getShininess();
+	glm::vec3 object_normal = normalize(objects.at(index)->getNormalAt(intersection_position));
+	float dotTemp = 0.0;
 	
-
-	// Shadow Ray
-
-
-	// Refraction Ray
-
-
-	glm::vec3 object_color = objects.at(index)->getAmbient();
-	glm::vec3 object_normal = objects.at(index)->getNormalAt(intersection_position);
-
-	glm::vec3 final_color = object_color * ambient_light;
+	
+	
+	glm::vec3 final_color = color;
+	
 	for (int light_index = 0; light_index < lights.size(); light_index++)
 	{
 		glm::vec3 light_direction = normalize(lights.at(light_index)->getPosition() - intersection_position);
-		float cosine_angle = dot(object_normal, light_direction);
+		float cosine_angle = dot(object_normal, normalize(light_direction));
 		if (cosine_angle > 0)
 		{
 			// Check for shadows
 			bool shadowed = false;
-			glm::vec3 distance_to_light = normalize(lights.at(light_index)->getPosition() - intersection_position);
-			float distance_to_light_magnitude = length(distance_to_light);
-			Ray shadow_ray(intersection_position, normalize(lights.at(light_index)->getPosition() - intersection_position));
+			float distance_to_light  = length(lights.at(light_index)->getPosition() - intersection_position);
+			glm::vec3 shadow_ray_origin = intersection_position + light_direction*(float)0.1;
+			Ray shadow_ray(shadow_ray_origin, lights.at(light_index)->getPosition() - intersection_position);
 			std::vector<float> secondary_intersections;
 			for (int object_index = 0; object_index < objects.size(); object_index++)
 			{
@@ -177,7 +202,7 @@ glm::vec3 getColorAt(const glm::vec3& intersection_position, const glm::vec3& in
 			{
 				if (secondary_intersections.at(c) > accuracy)
 				{
-					if (secondary_intersections.at(c) <= distance_to_light_magnitude)
+					if (secondary_intersections.at(c) <= distance_to_light)
 					{
 						shadowed = true;
 						break;
@@ -186,11 +211,34 @@ glm::vec3 getColorAt(const glm::vec3& intersection_position, const glm::vec3& in
 				}
 			}
 			if (!shadowed) {
-				final_color += object_color * lights.at(light_index)->getColor()*cosine_angle;
+				glm::vec3 totalAddition = glm::vec3(0, 0, 0);
+
+				glm::vec3 diffuseAddition = diffuse * std::max((float)0, cosine_angle);
+				//std::cout << "diffuse:" << diffuseAddition.x << " " << diffuseAddition.y << " " << diffuseAddition.z << std::endl;
+				glm::vec3 r = 2 * glm::normalize(dot(light_direction, object_normal)) * object_normal - light_direction;
+				//std::cout << "r= " << r.x << " " << r.y << " " << r.z << std::endl;
+				dotTemp = dot(r, light_direction);
+				if (dotTemp > 0) {
+					glm::vec3 specularAddition = specular * max(glm::vec3(0, 0, 0), pow(dotTemp, shininess));
+					//std::cout << "specular:" << specularAddition.x << " " << specularAddition.y << " " << specularAddition.z << std::endl;
+					totalAddition += lights.at(light_index)->getColor()*(diffuseAddition + specularAddition);
+				}
+				else
+				{
+					totalAddition += lights.at(light_index)->getColor()*(diffuseAddition);
+				}
+				//std::cout << "Add:" << totalAddition.x << " " << totalAddition.y << " " << totalAddition.z << std::endl;
+				final_color += totalAddition;
+				//std::cout << "color" << final_color.x << " " << final_color.y << " " << final_color.z << std::endl;
 			}
 		}
-		return final_color;
+		
 	}
+	if (final_color.x < 1e-6 || final_color.y < 1e-6 || final_color.z < 1e-6)
+	{
+		std::cout << "Error bad number" << std::endl;
+	}
+	return final_color;
 }
 
 	int main()
@@ -209,8 +257,7 @@ glm::vec3 getColorAt(const glm::vec3& intersection_position, const glm::vec3& in
 		//Sphere scene_sphere(glm::vec3(0, 10, -30), glm::vec3(0.1, 0.5, 0.5), glm::vec3(0.4, 0.6, 0.2), glm::vec3(0.2, 0.5, 0.5), 3, 1.0);
 		//Plane scene_plane(Y, glm::vec3(), glm::vec3(0.2, 0.2, 0.2), glm::vec3(0.8, 0.8, 0.2), glm::vec3(0.5, 0.5, 0.5),1.0);
 		//Camera scene_camera()
-
-		InputReader* input = new InputReader("scene7.txt");
+		InputReader* input = new InputReader("scene6.txt");
 		Scene scene = input->scene;
 
 		int width = scene.width;
@@ -226,6 +273,11 @@ glm::vec3 getColorAt(const glm::vec3& intersection_position, const glm::vec3& in
 		glm::vec3 pHit;
 		glm::vec3 nHit;
 		glm::vec3 dHit;
+
+		float minDistance = INFINITY;
+
+		SceneObject* object;
+
 		int index = 0;
 
 		for (int x = 0; x < width; x++)
@@ -233,7 +285,7 @@ glm::vec3 getColorAt(const glm::vec3& intersection_position, const glm::vec3& in
 			std::cout << "Tracing pixels for x=" << x << "... " << std::endl;
 			for (int y = 0; y < height; y++)
 			{
-				//No anti-aliasing
+				// Compute values for the ray direction
 				if (width > height)
 				{
 					xamt = ((x + 0.5) / width)*aspect_ratio - (((width - height) / (float)height) / 2);
@@ -251,13 +303,14 @@ glm::vec3 getColorAt(const glm::vec3& intersection_position, const glm::vec3& in
 					yamt = ((height - y) + 0.5) / height;
 				}
 				glm::vec3 Cam_ray_direction = glm::normalize(cam_dir + (cam_right*(float)(xamt - 0.5) + (cam_down*(float)(yamt - 0.5))));
+
 				Ray cam_ray(Cam_ray_origin, Cam_ray_direction);
 
 				std::vector<float> intersections;
 
 				for (int i = 0; i < scene.objects.size(); i++)
 				{
-					intersections.push_back(scene.objects[i]->Intersect(cam_ray));
+						intersections.push_back(scene.objects[i]->Intersect(cam_ray));
 				}
 				int index_closest = closest(intersections);
 
@@ -287,28 +340,12 @@ glm::vec3 getColorAt(const glm::vec3& intersection_position, const glm::vec3& in
 					pixels[index].y = 0;
 					pixels[index].z = 0;
 				}
-				/*index = y*width + x;
-				if ((x>200 && x< 440) && (y>200 && y<280))
-				{
-					pixels[index].x = 0.5;
-					pixels[index].y = 0.1;
-					pixels[index].z = 1.0;
-				}
-				else
-				{
-					pixels[index].x = 0.1;
-					pixels[index].y = 0.1;
-					pixels[index].z = 0.2;
-				}*/
+
 			}
 
 		}
 		std::cout << "Reached end of raycast loop" << std::endl;
 		writeImage(width, height, pixels);
-		//saveBMP("scene.bmp", width, height, dpi, pixels);
 
-		/*InputReader* input = new InputReader("scene5.txt");
-		Scene scene = input->scene;*/
-		//std::cout << scene.to_string() << std::endl;
 		return 0;
 	}

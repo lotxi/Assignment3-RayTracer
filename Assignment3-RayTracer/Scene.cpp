@@ -79,7 +79,7 @@ std::string Scene::to_string()
 //	bmpinfoheader[23] = (unsigned char)(s >> 16);
 //	bmpinfoheader[24] = (unsigned char)(s >> 24);
 //
-//	bmpinfoheader[25] = (unsigned char)(ppm);
+//	bmpinfoheader[25] = (unsigned char)(ppm);sc
 //	bmpinfoheader[26] = (unsigned char)(ppm >> 8);
 //	bmpinfoheader[27] = (unsigned char)(ppm >> 16);
 //	bmpinfoheader[28] = (unsigned char)(ppm >> 24);
