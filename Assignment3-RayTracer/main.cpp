@@ -9,7 +9,7 @@ const float ambient_light = 0.7;
 
 float saturate(float x)
 {
-	if (x>255.f)
+	if (x > 255.f)
 	{
 		return 255.f;
 	}
@@ -29,7 +29,7 @@ void writeImage(int width, int height, glm::vec3* pixels)
 		{
 			int index = y * width + x;
 			float red = pixels[index].x * 255;
-			float green =pixels[index].y * 255;
+			float green = pixels[index].y * 255;
 			float blue = pixels[index].z * 255;
 			image(x, height - y - 1, 0, 0) = red;
 			image(x, height - y - 1, 0, 1) = green;
@@ -130,14 +130,14 @@ glm::vec3 getColorAt(const glm::vec3& intersection_position, const glm::vec3& in
 	for (int light_index = 0; light_index < lights.size(); light_index++)
 	{
 		glm::vec3 light_direction = normalize(lights.at(light_index)->getPosition() - intersection_position);
-		float cosine_angle = dot(object_normal, normalize(light_direction));
+		float cosine_angle = dot(object_normal, light_direction);
 		if (cosine_angle > 0)
 		{
 			// Check for shadows
 			bool shadowed = false;
 			float distance_to_light = length(lights.at(light_index)->getPosition() - intersection_position);
-			//glm::vec3 shadow_ray_origin = intersection_position + light_direction*(float)0.1;
-			Ray shadow_ray(intersection_position, lights.at(light_index)->getPosition() - intersection_position);
+			glm::vec3 shadow_ray_origin = intersection_position + light_direction*(float)0.1;
+			Ray shadow_ray(shadow_ray_origin, light_direction);
 			std::vector<float> secondary_intersections;
 			for (int object_index = 0; object_index < objects.size(); object_index++)
 			{
@@ -159,16 +159,23 @@ glm::vec3 getColorAt(const glm::vec3& intersection_position, const glm::vec3& in
 				glm::vec3 addedLight = glm::vec3(0, 0, 0);
 
 				glm::vec3 diffuse = surface_diffuse * std::max((float)0, cosine_angle);
-				
-				glm::vec3 r = 2 * dot(light_direction, object_normal) * object_normal - light_direction;
+
+				glm::vec3 r = glm::normalize(2 * dot(light_direction, object_normal) * object_normal - light_direction);
 				float rDotL = dot(r, light_direction);
 				if (rDotL > accuracy) {
 					glm::vec3 specular = surface_specular * std::max((float)0, pow(rDotL, surface_shininess));
-					addedLight += lights.at(light_index)->getColor()*(diffuse + specular);
+
+					//addedLight += lights.at(light_index)->getColor()*(diffuse + specular);
+					addedLight.x += lights.at(light_index)->getColor().x*(diffuse.x + specular.x);
+					addedLight.y += lights.at(light_index)->getColor().y*(diffuse.y + specular.x);
+					addedLight.z += lights.at(light_index)->getColor().z*(diffuse.z + specular.z);
 				}
 				else
 				{
-					addedLight += lights.at(light_index)->getColor()*(diffuse);
+					//addedLight += lights.at(light_index)->getColor()*(diffuse);
+					addedLight.x += lights.at(light_index)->getColor().x*diffuse.x;
+					addedLight.y += lights.at(light_index)->getColor().y*diffuse.y;
+					addedLight.z += lights.at(light_index)->getColor().z*diffuse.z;
 				}
 				final_color += addedLight;
 			}
@@ -186,7 +193,8 @@ int main()
 	glm::vec3 cam_down = glm::vec3(0, -1, 0);
 	glm::vec3 cam_right = glm::vec3(1, 0, 0);
 
-	InputReader* input = new InputReader("scene6.txt");
+	InputReader* input = new InputReader("scene7.txt");
+
 	Scene scene = input->scene;
 
 	int width = scene.width;
@@ -196,6 +204,7 @@ int main()
 
 	float aspect_ratio = scene.camera->getAspectRatio();
 	glm::vec3 Cam_ray_origin = scene.camera->getPosition();
+	float fov = glm::radians(scene.camera->getFoV());
 
 
 	float xamt, yamt;
@@ -206,14 +215,22 @@ int main()
 	float minDistance = INFINITY;
 
 	SceneObject* object;
+	//float tanFoVdiv2 = tan(fov / 2);
+	////result = (src - src_min) / (src_max - src_min) * (result_max - result_min) + result_min
+	//float rayDivY = -height*(-tanFoVdiv2 -tanFoVdiv2) - tanFoVdiv2;
+	//float rayDivX = -width *(aspect_ratio*tanFoVdiv2*2) + (-aspect_ratio * tanFoVdiv2);
 
 	int index = 0;
 
 	for (int x = 0; x < width; x++)
 	{
-		std::cout << "Tracing pixels for x=" << x << "... " << std::endl;
+		if (x % 10 == 0)
+		{
+			std::cout << "Tracing pixels for x=" << x << "... " << std::endl;
+		}
 		for (int y = 0; y < height; y++)
 		{
+
 			// Compute values for the ray direction
 			if (width > height)
 			{
@@ -231,6 +248,11 @@ int main()
 				xamt = (x + 0.5) / width;
 				yamt = ((height - y) + 0.5) / height;
 			}
+
+
+			//float rayY = (y-height) / rayDivY;
+			//float rayX = (x-width) / rayDivX;
+			//glm::vec3 Cam_ray_direction = glm::normalize(glm::vec3(rayX, rayY, -1.f)-Cam_ray_origin);
 			glm::vec3 Cam_ray_direction = glm::normalize(cam_dir + (cam_right*(float)(xamt - 0.5) + (cam_down*(float)(yamt - 0.5))));
 
 			Ray cam_ray(Cam_ray_origin, Cam_ray_direction);

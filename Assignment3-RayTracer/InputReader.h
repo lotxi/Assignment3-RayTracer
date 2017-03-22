@@ -14,12 +14,12 @@ public:
 	void ReadCamera();
 	static glm::vec3 parseVector(std::string line);
 	static float parseFloat(std::string line);
+	InputReader();
 	void ReadPlane();
 	void ReadTriangle();
 	void ReadSphere();
 	void ReadLight();
 	InputReader(std::string file);
-	~InputReader();
 	Scene scene;
 
 private:

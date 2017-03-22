@@ -23,6 +23,7 @@ object_type hashit(std::string const& input)
 	return errortype;
 }
 
+
 void InputReader::ReadCamera()
 {
 	glm::vec3 position;
@@ -41,7 +42,7 @@ void InputReader::ReadCamera()
 	std::cout << "Finished reading camera" << std::endl;
 
 	// Create camera from inputs
-	scene.camera = new Camera(position,fov,focal_length,aspect_ratio);
+	scene.camera = new Camera(position, fov, focal_length, aspect_ratio);
 }
 
 void InputReader::ReadPlane()
@@ -50,7 +51,7 @@ void InputReader::ReadPlane()
 	float shininess;
 
 	std::string line;
-	
+
 	getline(input, line);
 	normal = parseVector(line);
 
@@ -58,7 +59,7 @@ void InputReader::ReadPlane()
 	position = parseVector(line);
 
 	getline(input, line);
-	ambient= parseVector(line);
+	ambient = parseVector(line);
 
 	getline(input, line);
 	diffuse = parseVector(line);
@@ -91,10 +92,10 @@ void InputReader::ReadTriangle()
 	v3 = parseVector(line);
 
 	getline(input, line);
-	ambient= parseVector(line);
+	ambient = parseVector(line);
 
 	getline(input, line);
-	diffuse= parseVector(line);
+	diffuse = parseVector(line);
 
 	getline(input, line);
 	specular = parseVector(line);
@@ -104,14 +105,16 @@ void InputReader::ReadTriangle()
 
 	std::cout << "Finished reading triangle" << std::endl;
 	// Create triangle from inputs
-	scene.objects.push_back(new Triangle(v1,v2,v3,ambient,diffuse,specular,shininess));
+	scene.objects.push_back(new Triangle(v1, v2, v3, ambient, diffuse, specular, shininess));
 }
+
+
 
 void InputReader::ReadSphere()
 {
 	glm::vec3 position, ambient, diffuse, specular;
 	float radius, shininess;
-	
+
 	std::string line;
 
 	getline(input, line);
@@ -119,7 +122,7 @@ void InputReader::ReadSphere()
 
 	getline(input, line);
 	radius = parseFloat(line);
-	
+
 	getline(input, line);
 	ambient = parseVector(line);
 
@@ -134,21 +137,21 @@ void InputReader::ReadSphere()
 
 	std::cout << "Finished reading sphere" << std::endl;
 	// Create sphere from inputs
-	scene.objects.push_back(new Sphere(position,ambient,diffuse,specular,radius,shininess));
+	scene.objects.push_back(new Sphere(position, ambient, diffuse, specular, radius, shininess));
 }
 
 void InputReader::ReadLight()
 {
 	glm::vec3 position, color;
-	
+
 	std::string line;
-	
+
 	getline(input, line);
 	position = parseVector(line);
 
 	getline(input, line);
 	color = parseVector(line);
-	
+
 	std::cout << "Finished reading light" << std::endl;
 
 	// Create light from inputs
@@ -169,7 +172,7 @@ glm::vec3 InputReader::parseVector(std::string line)
 	z = stof(vstrings[3]);
 
 	return glm::vec3(x, y, z);
-	
+
 }
 
 float InputReader::parseFloat(std::string line)
@@ -183,7 +186,10 @@ float InputReader::parseFloat(std::string line)
 }
 
 
-
+InputReader::InputReader()
+{
+	
+}
 InputReader::InputReader(std::string file)
 {
 	input.open(file);
@@ -225,7 +231,7 @@ InputReader::InputReader(std::string file)
 			}
 		}
 
-		if (scene.camera!=nullptr)
+		if (scene.camera != nullptr)
 		{
 			scene.build_scene();
 		}
