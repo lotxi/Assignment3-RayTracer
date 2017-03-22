@@ -5,7 +5,7 @@
 #include "Plane.h"
 #define MAX_RAY_DEPTH = 5;
 
-const float ambient_light = 0.5;
+const float ambient_light = 0.7;
 
 float saturate(float x)
 {
@@ -28,12 +28,12 @@ void writeImage(int width, int height, glm::vec3* pixels)
 		for (int y = 0; y < height; y++)
 		{
 			int index = y * width + x;
-			float red = saturate(pixels[index].x * 255);
-			float blue = saturate(pixels[index].y * 255);
-			float green = saturate(pixels[index].z * 255);
+			float red = pixels[index].x * 255;
+			float green =pixels[index].y * 255;
+			float blue = pixels[index].z * 255;
 			image(x, height - y - 1, 0, 0) = red;
-			image(x, height - y - 1, 0, 1) = blue;
-			image(x, height - y - 1, 0, 2) = green;
+			image(x, height - y - 1, 0, 1) = green;
+			image(x, height - y - 1, 0, 2) = blue;
 		}
 	}
 	image.normalize(0, 255);
@@ -116,14 +116,14 @@ int closest(const std::vector<float>& intersections)
 glm::vec3 getColorAt(const glm::vec3& intersection_position, const glm::vec3& intersection_direction, const std::vector<SceneObject*>& objects, const std::vector<Light*>& lights, int index, double accuracy)
 {
 	//Ambient color
-	glm::vec3 color = objects.at(index)->getAmbient()*ambient_light;
+	glm::vec3 color = ambient_light*objects.at(index)->getAmbient();
 	//std::cout << "ambient:" << color.x << " " << color.y << " " << color.z << std::endl;
 
-	glm::vec3 diffuse = objects.at(index)->getDiffuse();
-	glm::vec3 specular = objects.at(index)->getSpecular();
-	float shininess = objects.at(index)->getShininess();
+	glm::vec3 surface_diffuse = objects.at(index)->getDiffuse();
+	glm::vec3 surface_specular = objects.at(index)->getSpecular();
+	float surface_shininess = objects.at(index)->getShininess();
 	glm::vec3 object_normal = normalize(objects.at(index)->getNormalAt(intersection_position));
-	float dotTemp = 0.0;
+
 
 	glm::vec3 final_color = color;
 
@@ -136,8 +136,8 @@ glm::vec3 getColorAt(const glm::vec3& intersection_position, const glm::vec3& in
 			// Check for shadows
 			bool shadowed = false;
 			float distance_to_light = length(lights.at(light_index)->getPosition() - intersection_position);
-			glm::vec3 shadow_ray_origin = intersection_position + light_direction*(float)0.1;
-			Ray shadow_ray(shadow_ray_origin, lights.at(light_index)->getPosition() - intersection_position);
+			//glm::vec3 shadow_ray_origin = intersection_position + light_direction*(float)0.1;
+			Ray shadow_ray(intersection_position, lights.at(light_index)->getPosition() - intersection_position);
 			std::vector<float> secondary_intersections;
 			for (int object_index = 0; object_index < objects.size(); object_index++)
 			{
@@ -156,21 +156,21 @@ glm::vec3 getColorAt(const glm::vec3& intersection_position, const glm::vec3& in
 				}
 			}
 			if (!shadowed) {
-				glm::vec3 totalAddition = glm::vec3(0, 0, 0);
+				glm::vec3 addedLight = glm::vec3(0, 0, 0);
 
-				glm::vec3 diffuseAddition = diffuse * std::max((float)0, cosine_angle);
+				glm::vec3 diffuse = surface_diffuse * std::max((float)0, cosine_angle);
 				
-				glm::vec3 r = 2 * glm::normalize(dot(light_direction, object_normal)) * object_normal - light_direction;
-				dotTemp = dot(r, light_direction);
-				if (dotTemp > 0) {
-					glm::vec3 specularAddition = specular * max(glm::vec3(0, 0, 0), pow(dotTemp, shininess));
-					totalAddition += lights.at(light_index)->getColor()*(diffuseAddition + specularAddition);
+				glm::vec3 r = 2 * dot(light_direction, object_normal) * object_normal - light_direction;
+				float rDotL = dot(r, light_direction);
+				if (rDotL > accuracy) {
+					glm::vec3 specular = surface_specular * std::max((float)0, pow(rDotL, surface_shininess));
+					addedLight += lights.at(light_index)->getColor()*(diffuse + specular);
 				}
 				else
 				{
-					totalAddition += lights.at(light_index)->getColor()*(diffuseAddition);
+					addedLight += lights.at(light_index)->getColor()*(diffuse);
 				}
-				final_color += totalAddition;
+				final_color += addedLight;
 			}
 		}
 
@@ -186,7 +186,7 @@ int main()
 	glm::vec3 cam_down = glm::vec3(0, -1, 0);
 	glm::vec3 cam_right = glm::vec3(1, 0, 0);
 
-	InputReader* input = new InputReader("scene_test.txt");
+	InputReader* input = new InputReader("scene6.txt");
 	Scene scene = input->scene;
 
 	int width = scene.width;
