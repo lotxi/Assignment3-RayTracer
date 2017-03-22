@@ -167,7 +167,7 @@ glm::vec3 getColorAt(const glm::vec3& intersection_position, const glm::vec3& in
 
 					//addedLight += lights.at(light_index)->getColor()*(diffuse + specular);
 					addedLight.x += lights.at(light_index)->getColor().x*(diffuse.x + specular.x);
-					addedLight.y += lights.at(light_index)->getColor().y*(diffuse.y + specular.x);
+					addedLight.y += lights.at(light_index)->getColor().y*(diffuse.y + specular.y);
 					addedLight.z += lights.at(light_index)->getColor().z*(diffuse.z + specular.z);
 				}
 				else
@@ -193,7 +193,7 @@ int main()
 	glm::vec3 cam_down = glm::vec3(0, -1, 0);
 	glm::vec3 cam_right = glm::vec3(1, 0, 0);
 
-	InputReader* input = new InputReader("scene7.txt");
+	InputReader* input = new InputReader("scene3.txt");
 
 	Scene scene = input->scene;
 
