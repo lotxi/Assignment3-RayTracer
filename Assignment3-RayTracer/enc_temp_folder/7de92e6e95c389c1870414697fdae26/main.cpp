@@ -464,6 +464,7 @@ int main()
 				pixels[index].y = 0;
 				pixels[index].z = 0;
 			}
+			
 			//std::vector<glm::vec3> samples;
 			//float xLow, xHigh, yLow, yHigh;
 			//if (width > height)

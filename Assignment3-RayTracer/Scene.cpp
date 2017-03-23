@@ -16,7 +16,7 @@ bool Scene::build_scene()
 	width = glm::round(camera->getAspectRatio()*height);
 
 
-	std::cout << width << "   " << height; 
+	std::cout << width << " x " << height << std::endl;
 	// For each pixel, convert the coordinate from screen space to world space
 
 	return true;
