@@ -7,7 +7,7 @@
 #define MAX_RAY_DEPTH = 5;
 
 const float ambient_light = 1.0;
-const int sample_count = 2;
+const int sample_count = 10;
 double accuracy = 0.00001;
 const int max_ray_depth = 10;
 int count = 0;
@@ -31,7 +31,7 @@ float saturate(float x)
 glm::vec3 saturate(glm::vec3 c)
 {
 	glm::vec3 result = glm::vec3(saturate(c.x), saturate(c.y), saturate(c.z));
-	
+
 	return result;
 }
 
@@ -76,7 +76,7 @@ int closest(const std::vector<float>& intersections)
 			return 0;
 		}
 		return -1; // The only intersection distance is negative
-		
+
 	}
 	// Determine the closest intersection to camera
 	double max = 0;
@@ -106,36 +106,11 @@ float getRandomFloat(const float &low, const float &high)
 	return low + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (high - low)));
 }
 
-//glm::vec3 Trace(Ray& ray, std::vector<SceneObject*> objects, std::vector<Light*> lights,const int&depth)
-//{
-//	SceneObject *object = nullptr;
-//	float minDist = INFINITY;
-//	glm::vec3 pHit;
-//	glm::vec3 nHit;
-//	for (int k=0; k<objects.size(); k++)
-//	{
-//		float distance = objects.at(k)->Intersect(ray);
-//		if (distance > 0 && distance<minDist)
-//		{
-//			object = objects.at(k);
-//			minDist = distance;
-//		}
-//		if (object==nullptr)
-//		{
-//			// No intersection, return background color
-//			return glm::vec3(0, 0, 0);
-//		}
-//		
-//
-//	}
-//}
-
 
 glm::vec3 getColorAt(const glm::vec3& intersection_position, const glm::vec3& intersection_direction, const std::vector<SceneObject*>& objects, const std::vector<Light*>& lights, int index, double accuracy, int depth)
 {
 	//Ambient color
 	glm::vec3 color = ambient_light*objects.at(index)->getAmbient();
-	//std::cout << "ambient:" << color.x << " " << color.y << " " << color.z << std::endl;
 
 	glm::vec3 surface_diffuse = objects.at(index)->getDiffuse();
 	glm::vec3 surface_specular = objects.at(index)->getSpecular();
@@ -166,12 +141,12 @@ glm::vec3 getColorAt(const glm::vec3& intersection_position, const glm::vec3& in
 		int index_closest_reflection = closest(reflection_intersections);
 		if (index_closest_reflection >= 0)
 		{
-			
+
 			if (reflection_intersections.at(index_closest_reflection) > accuracy) {
 				glm::vec3 reflection_position = intersection_position + reflection_intersections.at(index_closest_reflection) * reflection_direction;
 
 
-				glm::vec3 reflection_intersection_color = getColorAt(reflection_position, reflection_direction, objects,lights, index_closest_reflection, accuracy, depth+1);
+				glm::vec3 reflection_intersection_color = getColorAt(reflection_position, reflection_direction, objects, lights, index_closest_reflection, accuracy, depth + 1);
 				final_color += reflection_intersection_color*0.25f;//*objects.at(index)->getShininess();
 			}
 
@@ -203,7 +178,7 @@ glm::vec3 getColorAt(const glm::vec3& intersection_position, const glm::vec3& in
 					break;
 				}
 			}
-			
+
 			if (!shadowed) {
 				glm::vec3 addedLight = glm::vec3(0, 0, 0);
 
@@ -235,129 +210,98 @@ glm::vec3 getColorAt(const glm::vec3& intersection_position, const glm::vec3& in
 }
 
 
-//void computePixels(const int & xMin, const int &  xMax, const int &yMin, const int &yMax, const Scene &scene)
-//{
-//	int width = scene.width;
-//	int height = scene.height;
-//
-//	float aspect_ratio = scene.camera->getAspectRatio();
-//	glm::vec3 Cam_ray_origin = scene.camera->getPosition();
-//	float fov = glm::radians(scene.camera->getFoV());
-//
-//	for (int x = xMin; x < xMax; x++)
-//	{
-//		if ((x % 25) == 0)
-//		{
-//			std::cout << "x=" << x << std::endl;
-//		}
-//		for (int y = yMin; y < yMax; y++)
-//		{
-//
-//
-//			std::vector<float> xamts;
-//			std::vector<float> yamts;
-//
-//			std::vector<glm::vec3> samples;
-//
-//			float xLow, xHigh, yLow, yHigh;
-//			if (width > height)
-//			{
-//				xLow = (x / width)*aspect_ratio - (((width - height) / (float)height));
-//				xHigh = ((x + 1) / width)*aspect_ratio - (((width - height) / (float)height));
-//				yLow = (height - y) / height;
-//				yHigh = (height - y + 1) / height;
-//			}
-//
-//			else if (height > width)
-//			{
-//				xLow = x / width;
-//				xHigh = (x + 1) / width;
-//				yLow = ((height - y) / height) / aspect_ratio - (((height - width) / (float)width));
-//				yHigh = (((height - y) + 1) / height) / aspect_ratio - (((height - width) / (float)width));
-//			}
-//			// Compute values for the ray direction
-//			/*if (width > height)
-//			{
-//			xamt = ((x + 0.5) / width)*aspect_ratio - (((width - height) / (float)height) / 2);
-//			yamt = ((height - y) + 0.5) / height;
-//			}*/
-//			else
-//			{
-//				xLow = x / width;
-//				xHigh = (x + 1) / width;
-//				yLow = (height - y) / height;
-//				yHigh = ((height - y) + 1) / height;
-//			}
-//
-//			for (int i = 0; i < sample_count; i++)
-//			{
-//				xamts.push_back(getRandomFloat(xLow, xHigh));
-//				yamts.push_back(getRandomFloat(yLow, yHigh));
-//			}
-//
-//
-//			//float rayY = (y-height) / rayDivY;
-//			//float rayX = (x-width) / rayDivX;
-//			//glm::vec3 Cam_ray_direction = glm::normalize(glm::vec3(rayX, rayY, -1.f)-Cam_ray_origin);
-//
-//			for (int i = 0; i < sample_count; i++)
-//			{
-//				glm::vec3 Cam_ray_direction = glm::normalize(cam_dir + (cam_right*(float)(xamts.at(i) - 0.5) + (cam_down*(float)(yamts.at(i) - 0.5))));
-//				Ray cam_ray(Cam_ray_origin, Cam_ray_direction);
-//				std::vector<float> intersections;
-//
-//				for (int j = 0; j < scene.objects.size(); j++)
-//				{
-//
-//					intersections.push_back(scene.objects[j]->Intersect(cam_ray));
-//					int index_closest = closest(intersections);
-//					if (index_closest >= 0)
-//					{
-//						// Determine the position / direction vectors at intersection point
-//						if (intersections.at(index_closest) > accuracy)
-//						{
-//							glm::vec3 intersection_position = Cam_ray_origin + (Cam_ray_direction*intersections.at(index_closest));
-//							glm::vec3 intersection_direction = Cam_ray_direction;
-//							glm::vec3 intersection_color = getColorAt(intersection_position, intersection_direction, scene.objects, scene.lights, index_closest, accuracy);
-//
-//							samples.push_back(glm::vec3(intersection_color.x, intersection_color.y, intersection_color.z));
-//							//pixels[index].x = intersection_color.x;
-//							//pixels[index].y = intersection_color.y;
-//							//pixels[index].z = intersection_color.z;
-//						}
-//						else
-//						{
-//							samples.push_back(glm::vec3(0, 0, 0));
-//						}
-//					}
-//
-//				}
-//			}
-//
-//			glm::vec3 sum(0, 0, 0);
-//			for (int i = 0; i < samples.size(); i++)
-//			{
-//				sum += samples.at(i);
-//			}
-//			glm::vec3 color(0, 0, 0);
-//			color.x = sum.x / sample_count;
-//			color.y = sum.y / sample_count;
-//			color.z = sum.z / sample_count;
-//			if (sum.x > 0) count++;
-//
-//
-//			int index = y*width + x;
-//			pixels[index] = color;
-//
-//		}
-//	}
-//}
+void computePixels(const int & xMin, const int &  xMax, const int &yMin, const int &yMax, const Scene &scene, glm::vec3* pixels)
+{
+	int width = scene.width;
+	int height = scene.height;
+
+	float aspect_ratio = scene.camera->getAspectRatio();
+	glm::vec3 Cam_ray_origin = scene.camera->getPosition();
+	float fov = glm::radians(scene.camera->getFoV());
+
+	for (int x = xMin; x < xMax; x++)
+	{
+		for (int y = yMin; y < yMax; y++)
+		{
+			std::vector<glm::vec3> samples;
+
+			for (int i = 0; i < sample_count; i++)
+			{
+				float offset_x = getRandomFloat(0, 1);
+				float offset_y = getRandomFloat(0, 1);
+				float xamt, yamt;
+				// Compute values for the ray direction
+				if (width > height)
+				{
+					xamt = ((x + offset_x) / width)*aspect_ratio - (((width - height) / (float)height) / 2);
+					yamt = ((height - y) + offset_y) / height;
+				}
+				else if (height > width)
+				{
+					xamt = (x + offset_x) / width;
+					yamt = (((height - y) + offset_y) / height) / aspect_ratio - (((height - width) / (float)width) / 2);
+				}
+				else
+				{
+					// The image is square
+					xamt = (x + offset_x) / width;
+					yamt = ((height - y) + offset_y) / height;
+				}
+				std::vector<float> intersections;
+				glm::vec3 Cam_ray_direction = glm::normalize(cam_dir + cam_right*static_cast<float>(xamt - 0.5) + cam_down*static_cast<float>(yamt - 0.5));
+				Ray cam_ray(Cam_ray_origin, Cam_ray_direction);
+				for (int j = 0; j < scene.objects.size(); j++)
+				{
+					intersections.push_back(scene.objects[j]->Intersect(cam_ray));
+				}
+				int index_closest = closest(intersections);
+				int index = y*width + x;
+
+				if (index_closest >= 0)
+				{
+					// Determine the position / direction vectors at intersection point
+					if (intersections.at(index_closest) > accuracy)
+					{
+						glm::vec3 intersection_position = Cam_ray_origin + (Cam_ray_direction*intersections.at(index_closest));
+						glm::vec3 intersection_color = getColorAt(intersection_position, Cam_ray_direction, scene.objects, scene.lights, index_closest, accuracy, 0);
+						samples.push_back(intersection_color);
+						/*pixels[index].x = intersection_color.x;
+						pixels[index].y = intersection_color.y;
+						pixels[index].z = intersection_color.z;*/
+					}
+				}
+				else
+				{
+					samples.push_back(glm::vec3(0, 0, 0));
+					/*	pixels[index].x = 0;
+					pixels[index].y = 0;
+					pixels[index].z = 0;*/
+				}
+
+			}
+
+			glm::vec3 sum(0, 0, 0);
+			for (int i = 0; i < samples.size(); i++)
+			{
+				sum += samples.at(i);
+			}
+			glm::vec3 color(0, 0, 0);
+			color.x = sum.x / sample_count;
+			color.y = sum.y / sample_count;
+			color.z = sum.z / sample_count;
+
+			int index = y*width + x;
+			pixels[index] = color;
+
+		}
+	}
+}
 
 int main()
 {
 
 
-	InputReader* input = new InputReader("scene7 - Copy.txt");
+	InputReader* input = new InputReader("scene7.txt");
 
 	Scene scene = input->scene;
 
@@ -371,189 +315,27 @@ int main()
 	glm::vec3 Cam_ray_origin = scene.camera->getPosition();
 	float fov = glm::radians(scene.camera->getFoV());
 
-	std::vector<float> xamts;
-	std::vector<float> yamts;
-
-	float minDistance = INFINITY;
-
-	SceneObject* object;
 
 
 	srand(static_cast <unsigned>(time(0)));
 	int xMid, yMid;
 	xMid = ceil(width / 2);
 	yMid = ceil(height / 2);
-	float xamt, yamt;
 
 
-	//std::vector<std::thread> threads;
-	//threads.push_back(std::thread(computePixels, 0,xMid, 0, yMid, scene));
-	//threads.push_back(std::thread(computePixels, 0, xMid, yMid, height, scene));
-	//threads.push_back(std::thread(computePixels, xMid, width, 0, yMid, scene));
-	//threads.push_back(std::thread(computePixels, xMid, width, yMid, height, scene));
+	const clock_t begin_time = clock();
+	std::vector<std::thread> threads;
+	threads.push_back(std::thread(computePixels, 0,xMid, 0, yMid, scene, pixels));
+	threads.push_back(std::thread(computePixels, 0, xMid, yMid, height, scene, pixels));
+	threads.push_back(std::thread(computePixels, xMid, width, 0, yMid, scene,pixels));
+	threads.push_back(std::thread(computePixels, xMid, width, yMid, height, scene,pixels));
 	//void computePixels(glm::vec3* pixels, const int & xMin, const int &  xMax, const Scene &scene)
 
-	//std::cout << "synchronizing all threads...\n";
-	//for (auto& th : threads) th.join();
-	int progress = 0;
-	const clock_t begin_time = clock();
-
-	for (int x = 0; x < width; x++)
-	{
-		int completion = floor(((float)x / width) * 100);
-		if (completion > progress)
-		{
-			progress = completion;
-			printf("Rendering ... %d %%\r", completion);
-		}
-		for (int y = 0; y < height; y++)
-		{
-
-			// Compute values for the ray direction
-			if (width > height)
-			{
-				xamt = ((x + 0.5) / width)*aspect_ratio - (((width - height) / (float)height) / 2);
-				yamt = ((height - y) + 0.5) / height;
-			}
-			else if (height > width)
-			{
-				xamt = (x + 0.5) / width;
-				yamt = (((height - y) + 0.5) / height) / aspect_ratio - (((height - width) / (float)width) / 2);
-			}
-			else
-			{
-				// The image is square
-				xamt = (x + 0.5) / width;
-				yamt = ((height - y) + 0.5) / height;
-			}
-
-
-			//float rayY = (y-height) / rayDivY;
-			//float rayX = (x-width) / rayDivX;
-			//glm::vec3 Cam_ray_direction = glm::normalize(glm::vec3(rayX, rayY, -1.f)-Cam_ray_origin);
-			glm::vec3 Cam_ray_direction = glm::normalize(cam_dir + (cam_right*(float)(xamt - 0.5) + (cam_down*(float)(yamt - 0.5))));
-			
-			Ray cam_ray(Cam_ray_origin, Cam_ray_direction);
-
-			std::vector<float> intersections;
-
-			for (int i = 0; i < scene.objects.size(); i++)
-			{
-				intersections.push_back(scene.objects[i]->Intersect(cam_ray));
-			}
-
-			int index_closest = closest(intersections);
-			int index = y*width + x;
-
-			if (index_closest >= 0)
-			{
-				// Determine the position / direction vectors at intersection point
-				if (intersections.at(index_closest) > accuracy)
-				{
-					glm::vec3 intersection_position = Cam_ray_origin + (Cam_ray_direction*intersections.at(index_closest));
-					glm::vec3 intersection_color = getColorAt(intersection_position, Cam_ray_direction, scene.objects, scene.lights, index_closest, accuracy, 0);
-
-					pixels[index].x = intersection_color.x;
-					pixels[index].y = intersection_color.y;
-					pixels[index].z = intersection_color.z;
-				}
-			}
-			else
-			{
-				pixels[index].x = 0;
-				pixels[index].y = 0;
-				pixels[index].z = 0;
-			}
-			//std::vector<glm::vec3> samples;
-			//float xLow, xHigh, yLow, yHigh;
-			//if (width > height)
-			//{
-			//	xLow = (x / width)*aspect_ratio - (((width - height) / (float)height));
-			//	xHigh = ((x + 1) / width)*aspect_ratio - (((width - height) / (float)height));
-			//	yLow = (height - y) / height;
-			//	yHigh = (height - y + 1) / height;
-			//}
-
-			//else if (height > width)
-			//{
-			//	xLow = x / width;
-			//	xHigh = (x + 1) / width;
-			//	yLow = ((height - y) / height) / aspect_ratio - (((height - width) / (float)width));
-			//	yHigh = (((height - y) + 1) / height) / aspect_ratio - (((height - width) / (float)width));
-			//}
-			//else
-			//{
-			//	xLow = x / width;
-			//	xHigh = (x + 1) / width;
-			//	yLow = (height - y) / height;
-			//	yHigh = ((height - y) + 1) / height;
-			//}
-
-			//for (int i = 0; i < sample_count; i++)
-			//{
-			//	xamts.push_back(getRandomFloat(xLow, xHigh));
-			//	yamts.push_back(getRandomFloat(yLow, yHigh));
-			//}
-
-
-			//for (int i = 0; i < sample_count; i++)
-			//{
-			//	glm::vec3 Cam_ray_direction = glm::normalize(cam_dir + (cam_right*(float)(xamts.at(i) - 0.5) + (cam_down*(float)(yamts.at(i) - 0.5))));
-			//	Ray cam_ray(Cam_ray_origin, Cam_ray_direction);
-			//	std::vector<float> intersections;
-
-			//	for (int j = 0; j < scene.objects.size(); j++)
-			//	{
-
-			//		intersections.push_back(scene.objects[j]->Intersect(cam_ray));
-			//		int index_closest = closest(intersections);
-			//		if (index_closest >= 0)
-			//		{
-			//			// Determine the position / direction vectors at intersection point
-			//			if (intersections.at(index_closest) > accuracy)
-			//			{
-			//				glm::vec3 intersection_position = Cam_ray_origin + (Cam_ray_direction*intersections.at(index_closest));
-			//				glm::vec3 intersection_direction = Cam_ray_direction;
-			//				glm::vec3 intersection_color = getColorAt(intersection_position, intersection_direction, scene.objects, scene.lights, index_closest, accuracy);
-
-			//				samples.push_back(glm::vec3(intersection_color.x, intersection_color.y, intersection_color.z));
-			//				//pixels[index].x = intersection_color.x;
-			//				//pixels[index].y = intersection_color.y;
-			//				//pixels[index].z = intersection_color.z;
-			//			}
-			//			else
-			//			{
-			//				samples.push_back(glm::vec3(0, 0, 0));
-			//			}
-			//		}
-
-			//	}
-			//}
-
-			
-
-			/*glm::vec3 sum(0, 0, 0);
-			for (int i = 0; i < samples.size(); i++)
-			{
-				sum += samples.at(i);
-			}
-			glm::vec3 color(0, 0, 0);
-			color.x = sum.x / sample_count;
-			color.y = sum.y / sample_count;
-			color.z = sum.z / sample_count;
-
-
-			int index = y*width + x;
-			pixels[index] = color;*/
-
-			
-		}
-	}
+	std::cout << "synchronizing all threads...\n";
+	for (auto& th : threads) th.join();
 
 	std::cout << "Reached end of raycast loop after " << float(clock() - begin_time) / CLOCKS_PER_SEC << std::endl;
 	writeImage(pixels, width, height);
-
-	std::cout << "Num of non-black pixels " << count;
 
 	return 0;
 
