@@ -12,8 +12,9 @@ public:
 	float getFoV() const;
 	float getFocalLength() const;
 	float getAspectRatio() const;
+	~Camera();
 private:
 	glm::vec3 pos;
 	float fov, focal_length, aspect_ratio;
-	~Camera();
+
 };

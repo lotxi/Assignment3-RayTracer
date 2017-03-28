@@ -11,17 +11,18 @@
 class InputReader
 {
 public:
-	void ReadCamera();
-	static glm::vec3 parseVector(std::string line);
-	static float parseFloat(std::string line);
 	InputReader();
-	void ReadPlane();
-	void ReadTriangle();
-	void ReadSphere();
-	void ReadLight();
+	~InputReader();
 	InputReader(std::string file);
 	Scene scene;
 
 private:
 	std::ifstream input;
+	void ReadCamera();
+	void ReadPlane();
+	void ReadTriangle();
+	void ReadSphere();
+	void ReadLight();
+	static glm::vec3 parseVector(std::string line);
+	static float parseFloat(std::string line);
 };

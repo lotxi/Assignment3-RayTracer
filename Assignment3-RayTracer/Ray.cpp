@@ -12,12 +12,12 @@ Ray::Ray(glm::vec3 o, glm::vec3 d)
 	direction = d;
 }
 
-glm::vec3 Ray::getOrigin()
+glm::vec3 Ray::getOrigin() const
 {
 	return origin;
 }
 
-glm::vec3 Ray::getDirection()
+glm::vec3 Ray::getDirection() const
 {
 	return direction;
 }

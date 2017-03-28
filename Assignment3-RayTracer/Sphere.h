@@ -7,8 +7,8 @@ public:
 	Sphere();
 	Sphere(glm::vec3 position, glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular, float radius, float shininess);
 	std::string to_string() override;
-	float Intersect(Ray ray) override;
-	glm::vec3 getNormalAt(glm::vec3 point) override;
+	float Intersect(const Ray &ray) const override;
+	glm::vec3 getNormalAt(const glm::vec3 &point) const override;
 	~Sphere();
 
 private:

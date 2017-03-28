@@ -29,14 +29,14 @@ std::string Sphere::to_string()
 
 }
 
-float Sphere::Intersect(Ray ray)
+float Sphere::Intersect(const Ray& ray) const
 {
 	float t0, t1;
 	glm::vec3 dir = ray.getDirection();
 	glm::vec3 L = ray.getOrigin()-pos;
-	float a = glm::dot(dir, dir);
-	float b = 2 * glm::dot(dir, L);
-	float c = glm::dot(L,L) - pow(radius,2);
+	auto a = glm::dot(dir, dir);
+	auto b = 2 * glm::dot(dir, L);
+	auto c = glm::dot(L,L) - pow(radius,2);
 	if (!solveQuadratic(a, b, c, t0, t1)) return 0;
 	if (!solveQuadratic(a, b, c, t0, t1)) return 0;
 
@@ -49,10 +49,9 @@ float Sphere::Intersect(Ray ray)
 	return t0;
 }
 
-glm::vec3 Sphere::getNormalAt(glm::vec3 point)
+glm::vec3 Sphere::getNormalAt(const glm::vec3 &point) const
 {
-	//TODO
-	glm::vec3 normal = normalize(point - pos);
+	auto normal = normalize(point - pos);
 	return normal;
 }
 

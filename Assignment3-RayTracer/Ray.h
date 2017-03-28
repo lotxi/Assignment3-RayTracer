@@ -9,6 +9,6 @@ private:
 public:
 	Ray();
 	Ray(glm::vec3, glm::vec3);
-	glm::vec3 getOrigin();
-	glm::vec3 getDirection();
+	glm::vec3 getOrigin() const;
+	glm::vec3 getDirection() const;
 };

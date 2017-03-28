@@ -190,6 +190,12 @@ InputReader::InputReader()
 {
 	
 }
+
+InputReader::~InputReader()
+{
+
+}
+
 InputReader::InputReader(std::string file)
 {
 	input.open(file);

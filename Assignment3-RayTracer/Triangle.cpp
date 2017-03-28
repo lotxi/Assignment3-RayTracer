@@ -31,7 +31,7 @@ std::string Triangle::to_string()
 
 }
 
-float Triangle::Intersect(Ray ray)
+float Triangle::Intersect(const Ray &ray) const
 {
 	glm::vec3 e1, e2;
 	glm::vec3 P, Q, T;
@@ -67,7 +67,7 @@ float Triangle::Intersect(Ray ray)
 
 }
 
-glm::vec3 Triangle::getNormalAt(glm::vec3 point)
+glm::vec3 Triangle::getNormalAt(const glm::vec3 &point) const
 {
 	return normal;
 }

@@ -10,10 +10,10 @@ Plane::Plane(glm::vec3 normal, glm::vec3 position, glm::vec3 ambient, glm::vec3 
 {
 }
 
-float Plane::Intersect(Ray ray)
+float Plane::Intersect(const Ray &ray) const
 {
-	float a = glm::dot(ray.getDirection(), normal);
-	 
+	auto a = glm::dot(ray.getDirection(), normal);
+
 	if (a==0)
 	{
 		return -1;
@@ -23,12 +23,7 @@ float Plane::Intersect(Ray ray)
 	
 }
 
-glm::vec3 Plane::getPosition() const
-{
-	return position;
-}
-
-glm::vec3 Plane::getNormalAt(glm::vec3 point)
+glm::vec3 Plane::getNormalAt(const glm::vec3& point) const
 {
 	return normal;
 }

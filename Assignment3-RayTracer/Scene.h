@@ -19,6 +19,4 @@ public:
 	std::string to_string();
 	int width;
 	int height;
-	std::vector<std::vector<glm::vec3>> pixels;
-	void saveBMP(const char* fileName, int dpi, glm::vec3* data);
 };

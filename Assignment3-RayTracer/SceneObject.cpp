@@ -1,8 +1,5 @@
 #include "SceneObject.h";
 
-SceneObject::~SceneObject()
-{
-}
 
 SceneObject::SceneObject() : ambient(glm::vec3()), diffuse(glm::vec3()), specular(glm::vec3()), shininess(0)
 {
